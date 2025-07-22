@@ -1,0 +1,5 @@
+{"properties": [{
+  "name": "experimental.enabled",
+  "type": "java.lang.Boolean",
+  "description": "Enable experimental modules."
+}]}
