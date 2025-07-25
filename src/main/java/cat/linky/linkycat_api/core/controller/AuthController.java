@@ -10,6 +10,7 @@ import cat.linky.linkycat_api.core.dto.AuthLoginUserRequestDTO;
 import cat.linky.linkycat_api.core.dto.AuthLoginUserResponseDTO;
 import cat.linky.linkycat_api.core.dto.AuthRegisterUserRequestDTO;
 import cat.linky.linkycat_api.core.service.AuthService;
+import jakarta.validation.Valid;
 
 
 @RestController
@@ -23,7 +24,7 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<AuthLoginUserResponseDTO> loginUser(@RequestBody AuthLoginUserRequestDTO req) {
+    public ResponseEntity<AuthLoginUserResponseDTO> loginUser(@Valid @RequestBody AuthLoginUserRequestDTO req) {
         String token = authService.authenticate(req.username(), req.password());        
 
         AuthLoginUserResponseDTO res = new AuthLoginUserResponseDTO(token);
@@ -32,7 +33,7 @@ public class AuthController {
     
     @SuppressWarnings("rawtypes")
     @PostMapping("/register")
-    public ResponseEntity registerUser(@RequestBody AuthRegisterUserRequestDTO req) {
+    public ResponseEntity registerUser(@Valid @RequestBody AuthRegisterUserRequestDTO req) {
         authService.register(req.toUserEntity());
         return ResponseEntity.ok().build();
     }

@@ -4,6 +4,7 @@ import java.time.Instant;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
@@ -15,6 +16,8 @@ import jakarta.servlet.http.HttpServletRequest;
 @ControllerAdvice
 public class ControllerExceptionHandler {
     
+    /* Custom exceptions */
+
     @ExceptionHandler(ExistingUserException.class)
     public ResponseEntity<StandardErrorResponseDTO> existingUser(ExistingUserException e, HttpServletRequest request) {
         StandardErrorResponseDTO res = new StandardErrorResponseDTO(
@@ -41,4 +44,25 @@ public class ControllerExceptionHandler {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(res);
     }
 
+    /***/
+
+    /* Validation exceptions */
+
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<StandardErrorResponseDTO> methodArgumentNotValid(MethodArgumentNotValidException e, HttpServletRequest request) {
+
+        String fieldErrorMessage = e.getBindingResult().getFieldErrors().get(0).getDefaultMessage();
+
+        StandardErrorResponseDTO res = new StandardErrorResponseDTO(
+            Instant.now(),
+            HttpStatus.BAD_REQUEST.value(),
+            "Method argument not valid",
+            fieldErrorMessage,
+            request.getRequestURI()
+        );
+
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(res);
+    }
+    
+    /***/
 }
