@@ -1,5 +1,12 @@
-{"properties": [{
-  "name": "experimental.enabled",
-  "type": "java.lang.Boolean",
-  "description": "Enable experimental modules."
-}]}
+{"properties": [
+  {
+    "name": "experimental.enabled",
+    "type": "java.lang.Boolean",
+    "description": "Enable experimental modules."
+  },
+  {
+    "name": "jwt.secret",
+    "type": "java.lang.String",
+    "description": "Secret for JWT algorithm."
+  }
+]}
