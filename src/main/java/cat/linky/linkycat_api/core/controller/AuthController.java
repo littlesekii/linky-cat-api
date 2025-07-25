@@ -6,25 +6,34 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import cat.linky.linkycat_api.core.dto.AuthLoginUserRequestDTO;
+import cat.linky.linkycat_api.core.dto.AuthLoginUserResponseDTO;
 import cat.linky.linkycat_api.core.dto.AuthRegisterUserRequestDTO;
-import cat.linky.linkycat_api.core.dto.StatusMessageResponseDTO;
-import cat.linky.linkycat_api.core.service.UserService;
+import cat.linky.linkycat_api.core.service.AuthService;
 
 
 @RestController
 @RequestMapping("api/auth")
 public class AuthController {
 
-    private final UserService userService;
+    private final AuthService authService;
 
-    public AuthController(UserService userService) {
-        this.userService = userService;
+    public AuthController(AuthService authService) {
+        this.authService = authService;
     }
-        
+
+    @PostMapping("/login")
+    public ResponseEntity<AuthLoginUserResponseDTO> loginUser(@RequestBody AuthLoginUserRequestDTO req) {
+        String token = authService.authenticate(req.username(), req.password());        
+
+        AuthLoginUserResponseDTO res = new AuthLoginUserResponseDTO(token);
+        return ResponseEntity.ok().body(res);
+    }
+    
     @SuppressWarnings("rawtypes")
     @PostMapping("/register")
     public ResponseEntity registerUser(@RequestBody AuthRegisterUserRequestDTO req) {
-        userService.insert(req.toUserEntity());
+        authService.register(req.toUserEntity());
         return ResponseEntity.ok().build();
     }
 

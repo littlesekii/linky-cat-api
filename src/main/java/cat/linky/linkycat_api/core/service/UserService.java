@@ -1,6 +1,5 @@
 package cat.linky.linkycat_api.core.service;
 
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import cat.linky.linkycat_api.core.model.User;
@@ -16,11 +15,11 @@ public class UserService {
     }
 
     public void insert(User user) {
-
-        String encryptedPassword = new BCryptPasswordEncoder().encode(user.getPassword());
-        user.setPassword(encryptedPassword);
-
         repository.save(user);
+    }
+
+    public User findByUsername(String username) {
+        return repository.findByUsername(username);
     }
 
 }
