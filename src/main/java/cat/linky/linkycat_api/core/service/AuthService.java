@@ -6,6 +6,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import cat.linky.linkycat_api.core.exception.ExistingUserException;
 import cat.linky.linkycat_api.core.exception.InvalidAuthCredentialsException;
 import cat.linky.linkycat_api.core.model.User;
 
@@ -34,6 +35,13 @@ public class AuthService {
     }
 
     public void register(User user) {
+
+        if (userService.findByUsername(user.getUsername()) != null)
+            throw new ExistingUserException("An account with this username is already registered");
+
+        if (userService.findByEmail(user.getEmail()) != null)
+            throw new ExistingUserException("An account with this email is already registered");
+
         String encryptedPassword = new BCryptPasswordEncoder().encode(user.getPassword());
         user.setPassword(encryptedPassword);
 
