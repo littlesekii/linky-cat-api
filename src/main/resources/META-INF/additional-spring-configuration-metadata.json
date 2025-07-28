@@ -8,5 +8,10 @@
     "name": "jwt.secret",
     "type": "java.lang.String",
     "description": "Secret for JWT algorithm."
+  },
+  {
+    "name": "client.url",
+    "type": "java.lang.String",
+    "description": "Frontend client url."
   }
 ]}
