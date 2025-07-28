@@ -2,6 +2,7 @@ package cat.linky.linkycat_api.core.service;
 
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -16,11 +17,18 @@ public class AuthService {
     private final UserService userService;
     private final JWTService jwtService;
     private final AuthenticationManager authManager;
+    private final BCryptPasswordEncoder passwordEncoder;
 
-    public AuthService(UserService userService, JWTService jwtService, AuthenticationManager authManager) {
+    public AuthService(
+        UserService userService, 
+        JWTService jwtService, 
+        AuthenticationManager authManager, 
+        BCryptPasswordEncoder passwordEncoder
+    ) {
         this.userService = userService;
         this.jwtService = jwtService;
         this.authManager = authManager;
+        this.passwordEncoder = passwordEncoder;
     }
 
     public String authenticate(String username, String password) {
@@ -29,7 +37,7 @@ public class AuthService {
             UserDetails userDetails = (UserDetails) authManager.authenticate(usernamePassword).getPrincipal();
 
             return jwtService.generateToken(userDetails.getUsername());
-        } catch (RuntimeException e) {
+        } catch (AuthenticationException e) {
             throw new InvalidAuthCredentialsException();
         }
     }
@@ -39,13 +47,11 @@ public class AuthService {
         validateUsername(user.getUsername());
         validatePassword(user.getPassword());
 
-        if (userService.findByUsername(user.getUsername()) != null)
-            throw new InvalidRegisterException("An account with this username is already registered");
+        validateExistingUser(user);
 
-        if (userService.findByEmail(user.getEmail()) != null)
-            throw new InvalidRegisterException("An account with this email is already registered");
+        
 
-        String encryptedPassword = new BCryptPasswordEncoder().encode(user.getPassword());
+        String encryptedPassword = passwordEncoder.encode(user.getPassword());
         user.setPassword(encryptedPassword);
 
         userService.insert(user);
@@ -91,6 +97,14 @@ public class AuthService {
         if (!password.matches(".*[!@#$%^&*()_+\\-=\\[\\]{};':\",./<>?].*")) {
             throw new InvalidRegisterException("Password must contain at least one special character (e.g. @, ! or #)");
         }
+    }
+
+    private void validateExistingUser(User user) {
+        if (userService.findByUsername(user.getUsername()) != null)
+            throw new InvalidRegisterException("An account with this username is already registered");
+
+        if (userService.findByEmail(user.getEmail()) != null)
+            throw new InvalidRegisterException("An account with this email is already registered");
     }
     
 }
