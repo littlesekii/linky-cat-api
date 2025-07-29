@@ -24,6 +24,7 @@ public class ControllerExceptionHandler {
         StandardErrorResponseDTO res = new StandardErrorResponseDTO(
             Instant.now(),
             HttpStatus.BAD_REQUEST.value(), 
+            "AUTH001",
             "Not existing login username",
             e.getMessage(), 
             request.getRequestURI()
@@ -37,6 +38,7 @@ public class ControllerExceptionHandler {
         StandardErrorResponseDTO res = new StandardErrorResponseDTO(
             Instant.now(),
             HttpStatus.BAD_REQUEST.value(), 
+            "AUTH002",
             "Invalid auth credentials",
             e.getMessage(), 
             request.getRequestURI()
@@ -50,6 +52,7 @@ public class ControllerExceptionHandler {
         StandardErrorResponseDTO res = new StandardErrorResponseDTO(
             Instant.now(),
             HttpStatus.BAD_REQUEST.value(), 
+            "AUTH003",
             "Invalid register",
             e.getMessage(), 
             request.getRequestURI()
@@ -70,6 +73,7 @@ public class ControllerExceptionHandler {
         StandardErrorResponseDTO res = new StandardErrorResponseDTO(
             Instant.now(),
             HttpStatus.BAD_REQUEST.value(),
+            "VAL001",
             "Method argument not valid",
             fieldErrorMessage,
             request.getRequestURI()

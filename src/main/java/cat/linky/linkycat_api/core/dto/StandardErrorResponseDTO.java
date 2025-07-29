@@ -5,6 +5,7 @@ import java.time.Instant;
 public record StandardErrorResponseDTO (
     Instant moment,
     Integer statusCode,
+    String errorCode,
     String error,
     String message,
     String path
