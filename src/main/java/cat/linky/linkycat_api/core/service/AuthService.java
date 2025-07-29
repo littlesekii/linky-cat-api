@@ -8,6 +8,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import cat.linky.linkycat_api.core.exception.InvalidAuthCredentialsException;
+import cat.linky.linkycat_api.core.exception.NotExistingLoginUsernameException;
 import cat.linky.linkycat_api.core.exception.InvalidRegisterException;
 import cat.linky.linkycat_api.core.model.User;
 
@@ -32,6 +33,9 @@ public class AuthService {
     }
 
     public String authenticate(String username, String password) {
+
+        checkNotExistingUsername(username);
+
         try {
             var usernamePassword = new UsernamePasswordAuthenticationToken(username, password);
             UserDetails userDetails = (UserDetails) authManager.authenticate(usernamePassword).getPrincipal();
@@ -44,12 +48,10 @@ public class AuthService {
 
     public void register(User user) {
 
-        validateUsername(user.getUsername());
-        validatePassword(user.getPassword());
+        checkInvalidUsername(user.getUsername());
+        checkInvalidPassword(user.getPassword());
 
-        validateExistingUser(user);
-
-        
+        checkExistingUser(user);
 
         String encryptedPassword = passwordEncoder.encode(user.getPassword());
         user.setPassword(encryptedPassword);
@@ -57,7 +59,12 @@ public class AuthService {
         userService.insert(user);
     }
 
-    private void validateUsername(String username) {
+    private void checkNotExistingUsername(String username) {
+        if (userService.findByUsername(username) == null)
+            throw new NotExistingLoginUsernameException();
+    }
+
+    private void checkInvalidUsername(String username) {
         
         if (username.length() > 32) 
             throw new InvalidRegisterException("Username length can't be over 32 characters");
@@ -76,7 +83,7 @@ public class AuthService {
         }
     }
 
-    private void validatePassword(String password) {
+    private void checkInvalidPassword(String password) {
 
         if (password.length() < 8) {
             throw new InvalidRegisterException("Password length must contain at least 8 characters");
@@ -99,7 +106,7 @@ public class AuthService {
         }
     }
 
-    private void validateExistingUser(User user) {
+    private void checkExistingUser(User user) {
         if (userService.findByUsername(user.getUsername()) != null)
             throw new InvalidRegisterException("An account with this username is already registered");
 

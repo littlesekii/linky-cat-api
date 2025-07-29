@@ -11,12 +11,26 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import cat.linky.linkycat_api.core.dto.StandardErrorResponseDTO;
 import cat.linky.linkycat_api.core.exception.InvalidAuthCredentialsException;
 import cat.linky.linkycat_api.core.exception.InvalidRegisterException;
+import cat.linky.linkycat_api.core.exception.NotExistingLoginUsernameException;
 import jakarta.servlet.http.HttpServletRequest;
 
 @ControllerAdvice
 public class ControllerExceptionHandler {
     
     /* Custom exceptions */
+
+    @ExceptionHandler(NotExistingLoginUsernameException.class)
+    public ResponseEntity<StandardErrorResponseDTO> notExistingLoginUsername(NotExistingLoginUsernameException e, HttpServletRequest request) {
+        StandardErrorResponseDTO res = new StandardErrorResponseDTO(
+            Instant.now(),
+            HttpStatus.BAD_REQUEST.value(), 
+            "Not existing login username",
+            e.getMessage(), 
+            request.getRequestURI()
+        );
+
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(res);
+    }
 
     @ExceptionHandler(InvalidAuthCredentialsException.class)
     public ResponseEntity<StandardErrorResponseDTO> invalidAuthCredentials(InvalidAuthCredentialsException e, HttpServletRequest request) {
