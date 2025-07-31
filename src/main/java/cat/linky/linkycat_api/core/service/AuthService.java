@@ -8,6 +8,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import cat.linky.linkycat_api.core.exception.InvalidAuthCredentialsException;
+import cat.linky.linkycat_api.core.exception.InvalidLoginException;
 import cat.linky.linkycat_api.core.exception.NotExistingLoginUsernameException;
 import cat.linky.linkycat_api.core.exception.InvalidRegisterException;
 import cat.linky.linkycat_api.core.model.User;
@@ -34,7 +35,7 @@ public class AuthService {
 
     public String authenticate(String username, String password) {
 
-        checkNotExistingUsername(username);
+        checkInvalidUsernameLogin(username);
 
         try {
             var usernamePassword = new UsernamePasswordAuthenticationToken(username, password);
@@ -48,10 +49,9 @@ public class AuthService {
 
     public void register(User user) {
 
-        checkInvalidUsername(user.getUsername());
-        checkInvalidPassword(user.getPassword());
-
-        checkExistingUser(user);
+        checkInvalidUsernameRegister(user.getUsername());
+        checkInvalidEmailRegister(user.getEmail());
+        checkInvalidPasswordRegister(user.getPassword());
 
         String encryptedPassword = passwordEncoder.encode(user.getPassword());
         user.setPassword(encryptedPassword);
@@ -59,12 +59,12 @@ public class AuthService {
         userService.insert(user);
     }
 
-    private void checkNotExistingUsername(String username) {
+    private void checkInvalidUsernameLogin(String username) {
         if (userService.findByUsername(username) == null)
-            throw new NotExistingLoginUsernameException();
+            throw new InvalidLoginException("There is no existing account with this username");
     }
 
-    private void checkInvalidUsername(String username) {
+    private void checkInvalidUsernameRegister(String username) {
         
         if (username.length() > 32) 
             throw new InvalidRegisterException("Username length can't be over 32 characters");
@@ -81,9 +81,18 @@ public class AuthService {
         if (username.startsWith(".") || username.endsWith(".")) {
             throw new InvalidRegisterException("Username can't start or end with a period");
         }
+
+        if (userService.findByUsername(username) != null)
+            throw new InvalidRegisterException("An account with this username is already registered");
     }
 
-    private void checkInvalidPassword(String password) {
+    public void checkInvalidEmailRegister(String email) {
+        if (userService.findByEmail(email) != null) {
+            throw new InvalidRegisterException("An account with this email is already registered");
+        }
+    }
+
+    private void checkInvalidPasswordRegister(String password) {
 
         if (password.length() < 8) {
             throw new InvalidRegisterException("Password length must contain at least 8 characters");
@@ -104,14 +113,5 @@ public class AuthService {
         if (!password.matches(".*[!@#$%^&*()_+\\-=\\[\\]{};':\",./<>?].*")) {
             throw new InvalidRegisterException("Password must contain at least one special character (e.g. @, ! or #)");
         }
-    }
-
-    private void checkExistingUser(User user) {
-        if (userService.findByUsername(user.getUsername()) != null)
-            throw new InvalidRegisterException("An account with this username is already registered");
-
-        if (userService.findByEmail(user.getEmail()) != null)
-            throw new InvalidRegisterException("An account with this email is already registered");
-    }
-    
+    }    
 }
