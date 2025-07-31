@@ -48,6 +48,7 @@ public class SecurityConfig {
                 .requestMatchers(PathRequest.toH2Console()).permitAll()
                 .requestMatchers(HttpMethod.POST, "/api/auth/register").permitAll()
                 .requestMatchers(HttpMethod.POST, "/api/auth/login").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/auth/register/*").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/ping").authenticated()
                 .anyRequest().authenticated()
             )        

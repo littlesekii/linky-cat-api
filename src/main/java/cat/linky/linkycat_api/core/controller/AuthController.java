@@ -11,6 +11,9 @@ import cat.linky.linkycat_api.core.dto.AuthLoginUserResponseDTO;
 import cat.linky.linkycat_api.core.dto.AuthRegisterUserRequestDTO;
 import cat.linky.linkycat_api.core.service.AuthService;
 import jakarta.validation.Valid;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+
 
 
 @RestController
@@ -31,11 +34,23 @@ public class AuthController {
         return ResponseEntity.ok().body(res);
     }
     
-    @SuppressWarnings("rawtypes")
     @PostMapping("/register")
-    public ResponseEntity registerUser(@Valid @RequestBody AuthRegisterUserRequestDTO req) {
+    public ResponseEntity<?> registerUser(@Valid @RequestBody AuthRegisterUserRequestDTO req) {
         authService.register(req.toUserEntity());
         return ResponseEntity.ok().build();
     }
+
+    @GetMapping("/register/check-username")
+    public ResponseEntity<?> registerCheckUsername(@RequestParam String username) {
+        authService.registerCheckUsername(username);
+        return ResponseEntity.ok().build();
+    }
+
+    @GetMapping("/register/check-email")
+    public ResponseEntity<?> registerCheckEmail(@RequestParam String email) {
+        authService.registerCheckEmail(email);
+        return ResponseEntity.ok().build();
+    }
+    
 
 }

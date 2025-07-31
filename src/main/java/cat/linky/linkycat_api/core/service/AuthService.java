@@ -9,7 +9,6 @@ import org.springframework.stereotype.Service;
 
 import cat.linky.linkycat_api.core.exception.InvalidAuthCredentialsException;
 import cat.linky.linkycat_api.core.exception.InvalidLoginException;
-import cat.linky.linkycat_api.core.exception.NotExistingLoginUsernameException;
 import cat.linky.linkycat_api.core.exception.InvalidRegisterException;
 import cat.linky.linkycat_api.core.model.User;
 
@@ -57,6 +56,14 @@ public class AuthService {
         user.setPassword(encryptedPassword);
 
         userService.insert(user);
+    }
+
+    public void registerCheckUsername(String username) {
+        checkInvalidUsernameRegister(username);
+    }
+    
+    public void registerCheckEmail(String email) {
+        checkInvalidEmailRegister(email);
     }
 
     private void checkInvalidUsernameLogin(String username) {
