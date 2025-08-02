@@ -8,11 +8,11 @@ import org.springframework.web.bind.annotation.RestController;
 
 import cat.linky.linkycat_api.core.dto.AuthLoginUserRequestDTO;
 import cat.linky.linkycat_api.core.dto.AuthLoginUserResponseDTO;
+import cat.linky.linkycat_api.core.dto.AuthRegisterCheckEmailRequestDTO;
+import cat.linky.linkycat_api.core.dto.AuthRegisterCheckUsernameRequestDTO;
 import cat.linky.linkycat_api.core.dto.AuthRegisterUserRequestDTO;
 import cat.linky.linkycat_api.core.service.AuthService;
 import jakarta.validation.Valid;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 
 
 
@@ -40,15 +40,15 @@ public class AuthController {
         return ResponseEntity.ok().build();
     }
 
-    @GetMapping("/register/check-username")
-    public ResponseEntity<?> registerCheckUsername(@RequestParam String username) {
-        authService.registerCheckUsername(username);
+    @PostMapping("/register/check-username")
+    public ResponseEntity<?> registerCheckUsername(@Valid @RequestBody AuthRegisterCheckUsernameRequestDTO req) {
+        authService.registerCheckUsername(req.username());
         return ResponseEntity.ok().build();
     }
 
-    @GetMapping("/register/check-email")
-    public ResponseEntity<?> registerCheckEmail(@RequestParam String email) {
-        authService.registerCheckEmail(email);
+    @PostMapping("/register/check-email")
+    public ResponseEntity<?> registerCheckEmail(@Valid @RequestBody AuthRegisterCheckEmailRequestDTO req) {
+        authService.registerCheckEmail(req.email());
         return ResponseEntity.ok().build();
     }
     
