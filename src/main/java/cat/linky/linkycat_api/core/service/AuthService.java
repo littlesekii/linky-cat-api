@@ -8,6 +8,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import cat.linky.linkycat_api.core.exception.InvalidAuthCredentialsException;
+import cat.linky.linkycat_api.core.exception.InvalidEmailVerificationException;
 import cat.linky.linkycat_api.core.exception.InvalidLoginException;
 import cat.linky.linkycat_api.core.exception.InvalidRegisterException;
 import cat.linky.linkycat_api.core.model.User;
@@ -16,17 +17,20 @@ import cat.linky.linkycat_api.core.model.User;
 public class AuthService {
 
     private final UserService userService;
+    private final EmailVerificationService emailVerificationService;
     private final JWTService jwtService;
     private final AuthenticationManager authManager;
     private final BCryptPasswordEncoder passwordEncoder;
 
     public AuthService(
         UserService userService, 
+        EmailVerificationService emailVerificationService,
         JWTService jwtService, 
         AuthenticationManager authManager, 
         BCryptPasswordEncoder passwordEncoder
     ) {
         this.userService = userService;
+        this.emailVerificationService = emailVerificationService;
         this.jwtService = jwtService;
         this.authManager = authManager;
         this.passwordEncoder = passwordEncoder;
@@ -51,6 +55,7 @@ public class AuthService {
         checkInvalidUsernameRegister(user.getUsername());
         checkInvalidEmailRegister(user.getEmail());
         checkInvalidPasswordRegister(user.getPassword());
+        checkInvalidEmailVerificationRegister(user.getEmail());
 
         String encryptedPassword = passwordEncoder.encode(user.getPassword());
         user.setPassword(encryptedPassword);
@@ -85,40 +90,38 @@ public class AuthService {
         if (username.contains(".."))
             throw new InvalidRegisterException("Username can't contain more than one period in a row");
 
-        if (username.startsWith(".") || username.endsWith(".")) {
+        if (username.startsWith(".") || username.endsWith("."))
             throw new InvalidRegisterException("Username can't start or end with a period");
-        }
 
         if (userService.findByUsername(username) != null)
             throw new InvalidRegisterException("An account with this username is already registered");
     }
 
-    public void checkInvalidEmailRegister(String email) {
-        if (userService.findByEmail(email) != null) {
+    private void checkInvalidEmailRegister(String email) {
+        if (userService.findByEmail(email) != null)
             throw new InvalidRegisterException("An account with this email is already registered");
-        }
     }
 
     private void checkInvalidPasswordRegister(String password) {
 
-        if (password.length() < 8) {
+        if (password.length() < 8)
             throw new InvalidRegisterException("Password length must contain at least 8 characters");
-        }
 
-        if (!password.matches(".*[A-Z].*")) {
+        if (!password.matches(".*[A-Z].*"))
             throw new InvalidRegisterException("Password must contain at least one uppercase letter (A-Z)");
-        }
 
-        if (!password.matches(".*[a-z].*")) {
+        if (!password.matches(".*[a-z].*"))
             throw new InvalidRegisterException("Password must contain at least one lowercase letter (a-z)");
-        }
 
-        if (!password.matches(".*[0-9].*")) {
+        if (!password.matches(".*[0-9].*"))
             throw new InvalidRegisterException("Password must contain at least one number");
-        }
 
-        if (!password.matches(".*[!@#$%^&*()_+\\-=\\[\\]{};':\",./<>?].*")) {
+        if (!password.matches(".*[!@#$%^&*()_+\\-=\\[\\]{};':\",./<>?].*"))
             throw new InvalidRegisterException("Password must contain at least one special character (e.g. @, ! or #)");
-        }
     }    
+    
+    private void checkInvalidEmailVerificationRegister(String email) {
+        if (!emailVerificationService.isVerified(email))
+            throw new InvalidEmailVerificationException("Email is not verified");
+    }
 }
