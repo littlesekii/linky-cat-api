@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 
 import cat.linky.linkycat_api.core.dto.StandardErrorResponseDTO;
 import cat.linky.linkycat_api.core.exception.InvalidAuthCredentialsException;
+import cat.linky.linkycat_api.core.exception.InvalidEmailVerificationException;
 import cat.linky.linkycat_api.core.exception.InvalidRegisterException;
 import cat.linky.linkycat_api.core.exception.InvalidLoginException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -54,6 +55,20 @@ public class ControllerExceptionHandler {
             HttpStatus.BAD_REQUEST.value(), 
             "AUTH003",
             "Invalid register",
+            e.getMessage(), 
+            request.getRequestURI()
+        );
+
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(res);
+    }
+
+    @ExceptionHandler(InvalidEmailVerificationException.class)
+    public ResponseEntity<StandardErrorResponseDTO> invalidEmailVerification(InvalidEmailVerificationException e, HttpServletRequest request) {
+        StandardErrorResponseDTO res = new StandardErrorResponseDTO(
+            Instant.now(),
+            HttpStatus.BAD_REQUEST.value(), 
+            "MAIL001",
+            "Invalid email verification",
             e.getMessage(), 
             request.getRequestURI()
         );
