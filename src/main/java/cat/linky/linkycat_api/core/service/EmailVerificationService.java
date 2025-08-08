@@ -59,6 +59,10 @@ public class EmailVerificationService {
     }
 
     public void verifyEmailVerificationCode(String email, String verificationCode) {
+
+        if(!verificationCode.matches("[A-Z0-9]{6}"))
+            throw new InvalidEmailVerificationException("Email verification code is invalid");
+
         EmailVerification emailVerification = findByEmailAndVerificationCode(email, verificationCode);
 
         if (emailVerification == null || emailVerification.getExpiresAt().isBefore(Instant.now()))
